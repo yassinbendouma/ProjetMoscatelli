@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/fragment.html :: head"> </head>
+<!-------------------------------------------------------- Header ------------------------------------------------------>
+<body>
+<header th:replace="fragments/fragment.html :: header"> </header>
+<!-------------------------------------------------------- Main ------------------------------------------------------>
+<main>
+    <div class="container">
+        <button class="bouton3" type="button" data-bs-toggle="modal" data-bs-target="#enterModal">Ajouter</button>
+    </div>
+    <div class="container">
+        <div class="text-center">
+            <h1>Gestion des prêts</h1>
+        </div>
+            <!---------------------------- Début du tableau ----------------------------------->
+        <table class="table table-striped table-responsive" >
+            <thead>
+            <tr>
+                <th scope="col">Utilisateur</th>
+                <th scope="col">Outil</th>
+                <th scope="col">Date de sortie</th>
+                <th scope="col">Date de retour</th>
+                <th scope="col">Date de retour prévue</th>
+                <th scope="col">Problème</th>
+                <th scope="col">Référence PV</th>
+                <th scope="col"></th>
+            </tr>
+            </thead>
+            <tbody>
+            <!---------------------------- Contenu du tableau ----------------------------------->
+            <th:block th:each="entreeSortie : ${entreesSorties}">
+                <tr>
+                    <td>[[${entreeSortie.utilisateur.nom}]]</td>
+                    <td>[[${entreeSortie.outil.designation}]]</td>
+                    <td>[[${entreeSortie.date_sortie}]]</td>
+                    <td>[[${entreeSortie.date_retour}]]</td>
+                    <td>[[${entreeSortie.date_de_retour_prevue}]]</td>
+                    <td>[[${entreeSortie.probleme}]]</td>
+                    <td>[[${entreeSortie.referencePV}]]</td>
+                    <td><a type="button" data-bs-toggle="modal" th:attr="data-bs-target='#editModal'+*{entreeSortie.id}"><i class="bi bi-pencil-fill"></i></a></td>
+                    <td><a type="button" data-bs-toggle="modal" th:attr="data-bs-target='#deleteModal'+*{entreeSortie.id}"><i class="bi bi-trash-fill"></i></a></td>
+            <!-------------------------------------------------------- Modal Edit------------------------------------------------------>
+                    <div class="modal fade"  th:attr="id='editModal'+*{entreeSortie.id}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabelEdit">Modifier un pret</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <form th:action="@{'/entreesortie/modifier/'+ ${entreeSortie.id}+'?keyword=' +${keyword}}"  method="post" >
+                                        <input type="hidden" th:value="${entreeSortie.id}">
+                                        <div class="mb-3">
+                                            <label class="form-label">Utilisateur</label>
+                                            <select class="form-select" id="utilisateur" name="utilisateur">
+                                                <option th:each="utilisateur:${utilisateurs}" th:value="${utilisateur.id}" th:text="${utilisateur.nom}"
+                                                th:selected="${entreeSortie.utilisateur.id}==${utilisateur.id}"></option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Outil</label>
+                                            <select class="form-select" id="outil" name="outil">
+                                                <option th:each="outil:${Outils}" th:value="${outil.id}" th:text="${outil.designation}"
+                                                        th:selected="${entreeSortie.outil.id} == ${outil.id}"></option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="date_sortie" class="form-label">date sortie</label>
+                                            <input type="Date" th:value="${entreeSortie.date_sortie}" class="form-control" id="date_sortie" name="date_sortie">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="date_de_retour_prevue" class="form-label">date de retour prevue</label>
+                                            <input type="Date" th:value="${entreeSortie.date_de_retour_prevue}" class="form-control" id="date_de_retour_prevue" name="date_de_retour_prevue">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="date_retour" class="form-label">date de retour</label>
+                                            <input type="Date" th:value="${entreeSortie.date_retour}" class="form-control" id="date_retour" name="date_retour">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="probleme" class="form-label">probleme</label>
+                                            <input type="text" th:value="${entreeSortie.probleme}" class="form-control" id="probleme" name="probleme">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="referencePV" class="form-label">referencePV</label>
+                                            <input type="text" th:value="${entreeSortie.referencePV}" class="form-control" id="referencePV" name="referencePV">
+                                        </div>
+
+                                        <button type="submit" class="btn btn-primary">Enregistrer</button>
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                                    </form>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+        <!-------------------------------------------------------- Fermeture du tableau ------------------------------------------------------>
+                </tr>
+            </th:block>
+            </tbody>
+        </table>
+        <!-------------------------------------------------------- Modal Delete ------------------------------------------------------>
+
+        <th:block th:each="entreeSortie : ${entreesSorties}">
+            <div class="modal fade" th:attr="id='deleteModal'+*{entreeSortie.id}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabelDelete">Supprimer</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form th:action="@{'/entreesortie/supprimer/'+ ${entreeSortie.id}+'?keyword=' +${keyword}}"  method="post">
+                                <div class="mb-3">
+                                    êtes-vous sur de vouloir supprimer ce pret ?
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                                    <button type="submit" class="btn btn-danger">Supprimer</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </th:block>
+        <!-------------------------------------------------------- Modal addUser ------------------------------------------------------>
+        <div class="modal fade" id="enterModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Nouveau compte</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form th:action="@{/entreesortie/enregistrer}" method="post" th:object="${entreeSortie}">
+                            <div class="mb-3">
+                                <select class="form-select" th:field="*{utilisateur}">
+                                    <option th:each="utilisateurs:${utilisateurs}" th:value="${utilisateurs.id}" th:text="${utilisateurs.nom}"></option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <select class="form-select" th:field="*{outil}">
+                                    <option th:each="outils:${Outils}" th:value="${outils.id}" th:text="${outils.designation}"></option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="date_sortie" class="form-label">Date sortie</label>
+                                <input type="Date" class="form-control" name="date_sortie" placeholder="JJ/MM/AAAA" th:field="*{date_sortie}">
+                            </div>
+                            <div class="mb-3">
+                                <label for="date_de_retour_prevue" class="form-label">Date de retour prévue</label>
+                                <input type="Date" class="form-control" name="date_de_retour_prevue" placeholder="JJ/MM/AAAA" th:field="*{date_de_retour_prevue}">
+                            </div>
+                            <div class="mb-3">
+                                <label for="date_retour" class="form-label">Date de retour</label>
+                                <input type="Date" class="form-control" name="date_retour" placeholder="JJ/MM/AAAA" th:field="*{date_retour}">
+                            </div>
+                            <div class="mb-3">
+                                <label for="probleme" class="form-label">probleme</label>
+                                <input type="text" class="form-control" name="probleme" placeholder="probleme" th:field="*{probleme}">
+                            </div>
+                            <div class="mb-3">
+                                <label for="referencePV" class="form-label">referencePV</label>
+                                <input type="text" class="form-control" name="referencePV" placeholder="referencePV" th:field="*{referencePV}">
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-primary">Enregistrer</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!---------------------------- Bouton retour ----------------------------------->
+        <a class="btn btn-secondary" href="/">Retour</a>
+    </div>
+</main>
+</body>
+</html>
+
